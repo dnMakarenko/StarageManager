@@ -15,7 +15,7 @@ namespace Storage.WebApi.Controllers
 {
     [RoutePrefix("api/Basket")]
     [Authorize]
-    public class ShoppingCartController : ApiController
+    public class BasketController : ApiController
     {
         #region Private Fields
         /// <summary>
@@ -41,13 +41,13 @@ namespace Storage.WebApi.Controllers
         #endregion
 
         #region Init
-        public ShoppingCartController(IProductService productService, IBasketService basketService)
+        public BasketController(IProductService productService, IBasketService basketService)
         {
             _userId = User.Identity.GetUserId();
             _product_service = productService;
             _basket_service = basketService;
         }
-        public ShoppingCartController(IBasketService basketService)
+        public BasketController(IBasketService basketService)
         {
             _userId = User.Identity.GetUserId();
             _basket_service = basketService;

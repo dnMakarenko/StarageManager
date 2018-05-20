@@ -8,11 +8,6 @@
                 requiresLogin: false,
                 controller: 'ProductController'
             })
-                .when('/Directories/GetDirectory', {
-                    templateUrl: '/App/Templates/Directory/Index.html',
-                    requiresLogin: false,
-                    controller: 'DirectoryController'
-                })
                 .when('/ShoppingCart', {
                     templateUrl: '/App/Templates/Cart/Cart.html',
                     requiredLogin: true,

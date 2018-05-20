@@ -13,4 +13,3 @@ D:\Projects\EmployeStorage\StorageManager\Storage.Dto\bin\Debug\AutoMapper.xml
 D:\Projects\EmployeStorage\StorageManager\Storage.Dto\obj\Debug\Storage.Dto.csproj.CoreCompileInputs.cache
 D:\Projects\EmployeStorage\StorageManager\Storage.Dto\obj\Debug\Storage.Dto.dll
 D:\Projects\EmployeStorage\StorageManager\Storage.Dto\obj\Debug\Storage.Dto.pdb
-D:\Projects\EmployeStorage\StorageManager\Storage.Dto\obj\Debug\Storage.Dto.csprojResolveAssemblyReference.cache
