@@ -1,0 +1,41 @@
+﻿<div class="row">
+    <div class="container-fluid">
+        <div class="bs-component">
+            <button type="button" class="btn btn-danger pull-left" ng-click="Commands.clearCart()"><span class="glyphicon glyphicon-shopping-cart"></span> Clear Cart</button>
+            <section class="col-md-4 pull-right"><input type="text" class="form-control input-lg" placeholder="Search" ng-model="search"></section>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="bs-component">
+        <div class="list-group">
+            <div class="col-md-4" ng-repeat="product in cart.products | filter:search | orderBy:'product.name'">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="list-group-item">
+                            <div class="row-content">
+                                <h4 class="list-group-item-heading">{{product.product.name}}</h4>
+                                <p class="list-group-item-text">{{product.product.description}}</p>
+                                <p class="list-group-item-text">Quantity:{{product.quantity}}</p>
+                                <p class="list-group-item-text">Price:{{product.product.price}} $</p>
+                                <p></p>
+                                <p class="list-group-item-text">Total: {{product.totalPrice}} $</p>
+                            </div>
+                            <div class="pull-left">
+                                <a class="btn btn-xs btn-default" ng-click="Commands.deleteProductFromCart(product.productId)"><span class="glyphicon glyphicon-minus" /></a>
+                                <a class="text-center">{{product.quantity}}</a>
+                                <a class="btn btn-xs btn-default" ng-click="Commands.addProductToCart(product.product)"><span class="glyphicon glyphicon-plus" /></a>
+                            </div>
+                            <div class="pull-right">
+                                <a class="btn btn-xs btn-warning" ng-click="Commands.deleteProductsFromCart(product.productId)">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

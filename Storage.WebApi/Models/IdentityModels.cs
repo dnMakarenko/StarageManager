@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Linq;
+using System.Data.Entity;
 
 namespace Storage.WebApi.Models
 {
@@ -48,11 +49,44 @@ namespace Storage.WebApi.Models
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
+            Database.SetInitializer(new ApplicationDbInitializer());
         }
 
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
+        }
+    }
+
+    public class ApplicationDbInitializer : DropCreateDatabaseIfModelChanges<ApplicationDbContext>
+    {
+        protected override void Seed(ApplicationDbContext context)
+        {
+            var manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
+
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
+
+            var user = new ApplicationUser()
+            {
+                UserName = "aspmvcrazor@gmail.com",
+                Email = "aspmvcrazor@gmail.com",
+                EmailConfirmed = true,
+                FirstName = "Denis",
+                LastName = "Makarenko"
+            };
+
+            manager.Create(user, "123456_Aa");
+
+            if (roleManager.Roles.Count() == 0)
+            {
+                roleManager.Create(new IdentityRole { Name = "Admin" });
+                roleManager.Create(new IdentityRole { Name = "User" });
+            }
+
+            var adminUser = manager.FindByName("aspmvcrazor@gmail.com");
+
+            manager.AddToRole(adminUser.Id, "Admin");
+            base.Seed(context);
         }
     }
 }

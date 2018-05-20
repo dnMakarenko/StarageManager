@@ -5,6 +5,7 @@ using Storage.WebApi.Models;
 using Storage.WebApi.Repository;
 using Storage.WebApi.Core;
 using System.Linq;
+using System;
 
 namespace Storage.WebApi.Services
 {
@@ -91,11 +92,19 @@ namespace Storage.WebApi.Services
             var basket = GetBasket(userId);
             if (basket == null)
             {
-                CreateBasket(userId);
+                return CreateBasket(userId);
             }
-            basket.Products.Clear();
-            Update(basket);
-
+            if (basket.Products != null && basket.Products.Count > 0)
+            {
+                using (var basket_product_repo = new BasketProductRepository())
+                {
+                    foreach (var product_to_remove in basket.Products)
+                    {
+                        basket_product_repo.Delete(product_to_remove.Id);
+                    }
+                }
+                basket.Products.Clear();
+            }
             return basket;
         }
 
@@ -128,12 +137,43 @@ namespace Storage.WebApi.Services
                 }
                 else
                 {
-                    throw new NotFoundException(string.Format("Couldn't find Product with Id '{0}' in Basket with Id '{1}'", productId, entity.Id));
+                    throw new NotFoundException(string.Format("Couldn't remove Product with Id '{0}' from ShoppingCart. Product not found!", productId));
                 }
             }
-            catch (NotFoundException ex)
+            catch (Exception ex)
             {
-                throw ex;
+                throw new NotFoundException(string.Format("Couldn't remove Product with Id '{0}' from ShoppingCart.", productId));
+            }
+        }
+
+        public Basket RemoveProducts(Basket entity, long productId)
+        {
+            try {
+                if (entity.Products == null || productId <= 0)
+                {
+                    return entity;
+                }
+                var products = entity.Products.Where(q => q.ProductId == productId).ToArray();
+                if (products.Length > 0)
+                {
+                    using (var basket_product_repo = new BasketProductRepository())
+                    {
+                        foreach (var product in products)
+                        {
+                            basket_product_repo.Delete(product.Id);
+                            entity.Products.Remove(product);
+                        }
+                    }
+                    return GetBasket(entity.UserId);
+                }
+                else
+                {
+                    throw new NotFoundException(string.Format("Couldn't remove Products with Id '{0}' from ShoppingCart. No one Product with Id '{1}' not found!", productId, productId));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new NotFoundException(string.Format("Couldn't remove Products with Id '{0}' from ShoppingCart.", productId));
             }
         }
         #endregion
@@ -147,7 +187,8 @@ namespace Storage.WebApi.Services
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
+                    
+                    _repo.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

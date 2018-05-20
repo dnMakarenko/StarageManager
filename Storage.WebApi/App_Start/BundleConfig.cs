@@ -53,6 +53,14 @@ namespace Storage.WebApi
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
 
+            bundles.Add(new StyleBundle("~/Assets/Styles/Css").Include(
+                "~/Assets/Styles/bootstrap.css",
+                "~/Assets/Styles/roboto.css",
+                "~/Assets/Styles/ripples.css",
+                "~/Assets/Styles/material.css",
+                "~/Assets/Styles/styles.css"
+                ));
+
             // Set EnableOptimizations to false for debugging. For more information,
             // visit http://go.microsoft.com/fwlink/?LinkId=301862
             BundleTable.EnableOptimizations = true;

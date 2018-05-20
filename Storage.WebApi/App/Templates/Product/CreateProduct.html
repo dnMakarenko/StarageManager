@@ -1,0 +1,37 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title">Product Information</h3>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="productForm" novalidate>
+        <fieldset>
+            <legend></legend>
+            <div class="form-group">
+                <label for="name" class="col-lg-2 control-label">Name</label>
+                <div class="col-lg-10">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="name" ng-model="product.name" required>
+                    <p ng-show="productForm.name.$invalid && !productForm.name.$pristine" class="help-block">Name is required.</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="col-lg-2 control-label">Description</label>
+                <div class="col-lg-10">
+                    <input type="text" class="form-control" id="description" name="description" placeholder="description" ng-model="product.description" required>
+                    <p ng-show="productForm.description.$invalid && !productForm.description.$pristine" class="help-block">Description is required.</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="price" class="col-lg-2 control-label">Price</label>
+                <div class="col-lg-10">
+                    <input type="text" class="form-control" id="price" name="price" placeholder="price" ng-model="product.price">
+                    <p ng-show="productForm.price.$invalid && !productForm.price.$pristine" class="help-block">Price is required.</p>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="">Cancel</button>
+    <button type="submit" class="btn btn-primary" ng-click="Commands.saveProduct(product)" ng-disabled="productForm.$invalid">Submit</button>
+</div>

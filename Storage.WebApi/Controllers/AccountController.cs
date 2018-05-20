@@ -18,6 +18,8 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
+using System.Web.Security;
+using System.Linq;
 
 namespace Store.WebApi.Controllers
 {
@@ -26,16 +28,19 @@ namespace Store.WebApi.Controllers
     {
         private const string LocalLoginProvider = "Local";
         private ApplicationUserManager _userManager;
+        private RoleManager<IdentityRole> _roleManager;
 
         public AccountController()
         {
         }
 
         public AccountController(ApplicationUserManager userManager,
-            ISecureDataFormat<AuthenticationTicket> accessTokenFormat)
+            ISecureDataFormat<AuthenticationTicket> accessTokenFormat,
+            RoleManager<IdentityRole> roleManager)
         {
             UserManager = userManager;
             AccessTokenFormat = accessTokenFormat;
+            RoleManager = roleManager;
         }
 
         public ApplicationUserManager UserManager
@@ -48,6 +53,20 @@ namespace Store.WebApi.Controllers
             {
                 _userManager = value;
             }
+        }
+
+        public RoleManager<IdentityRole> RoleManager
+        {
+            get { return _roleManager ?? Request.GetOwinContext().GetUserManager<RoleManager<IdentityRole>>(); }
+            private set
+            {
+                _roleManager = value;
+            }
+        }
+
+        private List<IdentityRole> Roles
+        {
+            get { return _roleManager.Roles.ToList(); }
         }
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
@@ -264,8 +283,8 @@ namespace Store.WebApi.Controllers
                     OAuthDefaults.AuthenticationType);
                 ClaimsIdentity cookieIdentity = await user.GenerateUserIdentityAsync(UserManager,
                     CookieAuthenticationDefaults.AuthenticationType);
-
-                AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+                var userRoles = this.Roles.Where(q => user.Roles.Select(s => s.RoleId).Contains(q.Id)).Select(q => q.Name).ToArray();
+                AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName, userRoles);
                 Authentication.SignIn(properties, oAuthIdentity, cookieIdentity);
             }
             else
@@ -337,14 +356,24 @@ namespace Store.WebApi.Controllers
                 Email = model.Email
             };
 
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
+            try
             {
-                return GetErrorResult(result);
+                IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+                if (!result.Succeeded)
+                {
+                    return GetErrorResult(result);
+                }
+                try {
+                    var addToRoleResult = UserManager.AddToRoleAsync(user.Id, "User");
+                }
+                catch (Exception ex) {}
+                
+                return Ok();
             }
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return InternalServerError(new Exception(ex.Message));
+            }
         }
 
         // POST api/Account/RegisterExternal
@@ -377,6 +406,10 @@ namespace Store.WebApi.Controllers
             {
                 return GetErrorResult(result); 
             }
+
+            try { var addToRoleResult = await UserManager.AddToRoleAsync(user.Id, "User"); }
+            catch (Exception ex) { }
+            
             return Ok();
         }
 

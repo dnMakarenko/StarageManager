@@ -1,0 +1,36 @@
+﻿<div class="row">
+    <div class="container-fluid">
+        <div class="bs-component">
+            <span ng-show="Global.isAdmin" class="pull-left"><a class="btn btn-success" ng-click="Modals.open()"><span class="glyphicon glyphicon-plus-sign"></span>Add Product</a></span>
+            <section class="col-md-4 pull-right"><input type="text" class="form-control input-lg" placeholder="Search" ng-model="search"></section>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="bs-component">
+        <div class="list-group">
+            <div class="col-md-4" ng-repeat="product in products | filter:search | orderBy:'name'">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="list-group-item">
+                            <div class="row-content">
+                                <a class="list-group-item-heading" ng-click="Modals.open(product)">{{product.name}}</a>
+                                <p class="list-group-item-text">{{product.description}}</p>
+                                <p class="list-group-item-text">{{product.price}}</p>
+                            </div>
+                            <div class="pull-right" ng-show="Global.isAdmin">
+                                <a class="btn btn-xs btn-primary" ng-click="Modals.open(product)">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                </a>
+                                <a class="btn btn-xs btn-warning" ng-click="Modals.deleteProduct(product.id)">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

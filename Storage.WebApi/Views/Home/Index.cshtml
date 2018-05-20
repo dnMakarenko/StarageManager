@@ -1,0 +1,50 @@
+﻿@{Layout = null;}
+<!DOCTYPE html>
+<html ng-app="StorageManager">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Storage Manager</title>
+            @Styles.Render("~/Assets/Styles/CSS")
+    </head>
+    <body ng-controller="GlobalController">
+        <div class="container body-content">
+            <section class="row">
+                <a class="btn btn-lg btn-default pull-left" href="#/"> Products Catalog </a>
+                <a ng-show="Global.isAuthenticated" class="btn btn-lg btn-default pull-left" href="#/ShoppingCart"> Shopping Cart ({{Global.ShoppingCart.totalBasketPrice}} $)</a>
+                <a ng-show="Global.isAuthenticated" ng-click="Global.logOut()" class="btn btn-lg btn-default pull-right"><span class="mdi-action-settings-power"></span></a>
+            </section>
+
+            <ng-view>
+            </ng-view>
+
+            <hr />
+            <footer class="footer"></footer>
+            <br />
+        </div>
+        @Scripts.Render("~/Assets/Scripts/JS")
+        <script src="~/App/Services/Interceptors/errorHandler.js"></script>
+        <script src="~/App/Services/Interceptors/xmlHttpInterceptor.js"></script>
+        <script src="~/App/Services/Account/storageHandler.js"></script>
+        <script src="~/App/Services/Account/tokenHandler.js"></script>
+        <script src="~/App/Services/Account/authService.js"></script>
+        <script src="~/App/Route/routeConfig.js"></script>
+        <script src="~/App/Controllers/Global/globalController.js"></script>
+        <script src="~/App/Controllers/Account/loginController.js"></script>
+        <script src="~/App/Controllers/Account/registerController.js"></script>
+
+        <script src="~/App/Services/Product/productService.js"></script>
+        <script src="~/App/Services/Cart/cartService.js"></script>
+        <script src="~/App/Controllers/Cart/cartController.js"></script>
+        <script src="~/App/Controllers/Product/productController.js"></script>
+        <script src="~/App/Controllers/Product/productFormModalController.js"></script>
+
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                //$.material.init();
+            });
+        </script>
+    </body>
+    </html>
+

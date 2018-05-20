@@ -22,13 +22,13 @@ namespace Storage.WebApi.Controllers
         /// <summary>
         /// Service for working with Products
         /// </summary>
-        private readonly IProductService _product_service;
+        private readonly IProductService _productService;
         #endregion
 
         #region Init
-        public ProductsController()
+        public ProductsController(IProductService productService)
         {
-            _product_service = new ProductService();
+            _productService = productService;
         }
         #endregion
 
@@ -39,13 +39,20 @@ namespace Storage.WebApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetAll")]
-        public async Task<IHttpActionResult> GetAll()
+        public async Task<IHttpActionResult> GetProducts()
         {
             try
             {
-                var products = await _product_service.GetAllAsync();
-                return Ok(products);
+                var products = await _productService.GetAllAsync();
+                if (products == null || products.Count == 0)
+                {
+                    products = CreateProducts();
+                }
+                var productsDto = new List<ProductDto>();
+
+                AutoMapper.Mapper.Map(products, productsDto);
+
+                return Ok(productsDto);
             }
             catch (Exception ex)
             {
@@ -58,14 +65,17 @@ namespace Storage.WebApi.Controllers
         /// </summary>
         /// <param name="productId">Id of Product</param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("GetById/{id}")]
-        public async Task<IHttpActionResult> GetById(int id)
+        [Route("ById/{id:int}")]
+        public async Task<IHttpActionResult> GetProduct(int id)
         {
             try
             {
-                var product = await _product_service.GetByIdAsync(id);
-                return Ok(product);
+                var product = await _productService.GetByIdAsync(id);
+                var productDto = new ProductDto();
+
+                AutoMapper.Mapper.Map(product, productDto);
+
+                return Ok(productDto);
             }
             catch (NotFoundException ex)
             {
@@ -83,22 +93,21 @@ namespace Storage.WebApi.Controllers
         /// <param name="productDto">Dto object with product data</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("Create")]
-        public async Task<IHttpActionResult> Create(ProductDto productDto)
+        public async Task<IHttpActionResult> PostProduct(ProductDto productDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
-                var product = new Product()
-                {
-                    Name = productDto.Name,
-                    Description = productDto.Description,
-                    Price = Convert.ToDecimal(productDto.Price)
-                };
+                var product = new Product();
+                AutoMapper.Mapper.Map(productDto, product);
 
-                _product_service.Insert(product);
+                _productService.Insert(product);
+                productDto.Id = product.Id.ToString();
 
-                var response = CreatedAtRoute("DefaultApi", new { controller = "Products", action = "GetById", id = product.Id }, product);
-                return response;
+                return CreatedAtRoute("DefaultApi", new { id = productDto.Id }, productDto);
             }
             catch (Exception ex)
             {
@@ -112,23 +121,33 @@ namespace Storage.WebApi.Controllers
         /// <param name="productDto">Dto object with product data</param>
         /// <returns></returns>
         [HttpPut]
-        [Route("Update/{id}")]
-        public async Task<IHttpActionResult> Update(long id, ProductDto productDto)
+        public async Task<IHttpActionResult> PutProduct(long id, ProductDto productDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id.ToString() != productDto.Id)
+            {
+                return BadRequest();
+            }
+
             try
             {
-                var product = await _product_service.GetByIdAsync(id);
+                productDto.Id = id.ToString();
+
+                var product = await _productService.GetByIdAsync(id);
                 if (product == null)
                 {
                     return NotFound();
                 }
-                product.Name = productDto.Name;
-                product.Description = productDto.Description;
-                product.Price = Convert.ToDecimal(productDto.Price);
 
-                _product_service.Update(product);
+                AutoMapper.Mapper.Map(productDto, product);
 
-                return Ok(product);
+                _productService.Update(product);
+
+                return Ok(productDto);
             }
             catch (NotFoundException)
             {
@@ -145,13 +164,18 @@ namespace Storage.WebApi.Controllers
         /// </summary>
         /// <param name="productId">Id of exiting product</param>
         /// <returns></returns>
-        [Route("Delete/{id}")]
-        public async Task<IHttpActionResult> Delete(int id)
+        [HttpDelete]
+        public async Task<IHttpActionResult> DeleteProduct(int id)
         {
             try
             {
-                _product_service.Delete(id);
-                return StatusCode(System.Net.HttpStatusCode.NoContent);
+                var product = await _productService.GetByIdAsync(id);
+
+                _productService.Delete(id);
+
+                var productDto = new ProductDto();
+                AutoMapper.Mapper.Map(product, productDto);
+                return Ok(productDto);
             }
             catch (NotFoundException)
             {
@@ -167,7 +191,7 @@ namespace Storage.WebApi.Controllers
         /// Api for Quickly Creating some products to start test server :)
         /// </summary>
         /// <returns></returns>
-        [HttpPost]
+       /* [HttpPost]
         [Route("CreateProductsTest")]
         public IHttpActionResult CreateProductsTest()
         {
@@ -184,7 +208,7 @@ namespace Storage.WebApi.Controllers
             {
                 return InternalServerError(new Exception(string.Format("Couldn't create products"), ex));
             }
-        }
+        }*/
         #endregion
 
         #region Private Helper Methods
@@ -194,7 +218,7 @@ namespace Storage.WebApi.Controllers
             for (int i = 0; i <= 9; i++)
             {
                 TestProduct.Name = TestProduct.Name + " " + i.ToString();
-                var product = _product_service.Insert(TestProduct);
+                var product = _productService.Insert(TestProduct);
                 products.Add(product);
             }
 
@@ -221,8 +245,8 @@ namespace Storage.WebApi.Controllers
         {
             if (disposing)
             {
-                if (_product_service != null)
-                    _product_service.Dispose();
+                if (_productService != null)
+                    _productService.Dispose();
             }
             base.Dispose(disposing);
         }

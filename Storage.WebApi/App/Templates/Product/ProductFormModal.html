@@ -1,0 +1,69 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title"> <span class="mdi-communication-contacts"></span> Product Information</h3>
+</div>
+<div class="modal-body">
+    <form ng-show="Global.isAdmin" class="form-horizontal" name="productForm" method="post">
+        <fieldset>
+            <legend></legend>
+            <div class="form-group">
+                <label for="name" class="col-lg-2 control-label">Name</label>
+                <div class="col-lg-10">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="name" ng-model="product.name">
+                    <p ng-show="productForm.name.$invalid && !productForm.name.$pristine" class="help-block">Name is required.</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="col-lg-2 control-label">Description</label>
+                <div class="col-lg-10">
+                    <input type="text" class="form-control" id="description" name="description" placeholder="description" ng-model="product.description" required>
+                    <p ng-show="productForm.description.$invalid && !productForm.description.$pristine" class="help-block">Description is required.</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="price" class="col-lg-2 control-label">Price</label>
+                <div class="col-lg-10">
+                    <input type="text" class="form-control" id="price" name="price" placeholder="price" ng-model="product.price">
+                    <p ng-show="productForm.price.$invalid && !productForm.price.$pristine" class="help-block">Price is required.</p>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+    <fieldset ng-show="Global.isAdmin==false">
+        <legend></legend>
+        <div class="form-group">
+            <label for="name" class="col-lg-2 control-label">Name</label>
+            <div class="col-lg-10">
+                <label>{{product.name}}</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description" class="col-lg-2 control-label">Description</label>
+            <div class="col-lg-10">
+                <label>{{product.description}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="price" class="col-lg-2 control-label">Price</label>
+            <div class="col-lg-10">
+                <label>{{product.price}}</label>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<div class="modal-footer">
+    <div ng-if="Global.isAuthenticated==true">
+        <button ng-show="isInCart(product.id)==true" type="button" class="btn btn-danger pull-left" ng-click="deleteProductsFromCart(product.id)"><span class="glyphicon glyphicon-shopping-cart"></span> Remove</button>
+        <button ng-show="isInCart(product.id)==false" type="button" class="btn btn-success pull-left" ng-click="addProductToCart(product)"><span class="glyphicon glyphicon-shopping-cart"></span> Add to cart</button>
+    </div>
+    <div ng-if="Global.isAuthenticated==false">
+        <button type="button" class="btn btn-info pull-left" ng-click="redirectToLogin()"><span class="glyphicon glyphicon-shopping-cart"></span>Add to cart</button>
+    </div>
+    <!--<button type="button" class="btn btn-info pull-left" ng-click="addProductToCart(product)"><span class="glyphicon glyphicon-shopping-cart"></span><a ng-show="isInCartBool==true">Added</a><a ng-show="isInCartBool==false">Add to cart</a></button>-->
+    <button class="btn btn-default" ng-click="cancel()">Close</button>
+    <button ng-show="Global.isAdmin==true" type="submit" class="btn btn-primary" ng-click="ok()" ng-disabled="productForm.$invalid">Submit</button>
+</div>
+
+    <style>
+    </style>

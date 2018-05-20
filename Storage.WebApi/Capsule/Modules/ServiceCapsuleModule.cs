@@ -14,6 +14,7 @@ namespace Storage.WebApi.Capsule.Modules
                 AsImplementedInterfaces().
                 InstancePerLifetimeScope();
 
+            builder.RegisterType(typeof(ProductService)).As(typeof(IProductService)).InstancePerDependency();
             builder.RegisterType(typeof(BasketService)).As(typeof(IBasketService)).InstancePerDependency();
                 //.RegisterGeneric(typeof(BasketService)).As(typeof(IBasketService)).InstancePerDependency();
         }

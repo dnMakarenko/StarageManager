@@ -14,7 +14,8 @@ using System.Web.Http.Description;
 namespace Storage.WebApi.Controllers
 {
     [RoutePrefix("api/Basket")]
-    public class BasketController : ApiController
+    [Authorize]
+    public class ShoppingCartController : ApiController
     {
         #region Private Fields
         /// <summary>
@@ -40,28 +41,28 @@ namespace Storage.WebApi.Controllers
         #endregion
 
         #region Init
-        public BasketController()
+        public ShoppingCartController(IProductService productService, IBasketService basketService)
         {
             _userId = User.Identity.GetUserId();
-            _product_service = new ProductService();
-            _basket_service = new BasketService();
+            _product_service = productService;
+            _basket_service = basketService;
+        }
+        public ShoppingCartController(IBasketService basketService)
+        {
+            _userId = User.Identity.GetUserId();
+            _basket_service = basketService;
         }
         #endregion
 
 
         #region Crud Operations
         /// <summary>
-        /// Get user`s basket by UserId
+        /// Returns Shopping Cart by UserId
         /// </summary>
         /// <returns></returns>
-        [Route("Get")]
         [HttpGet]
         public IHttpActionResult Get()
         {
-            if (!IsAuthenticated)
-            {
-                return StatusCode(System.Net.HttpStatusCode.Unauthorized);
-            }
             try
             {
                 var basket = _basket_service.GetBasket(_userId);
@@ -75,28 +76,37 @@ namespace Storage.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception(string.Format("Couldn't return Basket for UserId '{0}'", _userId), ex));
+                return InternalServerError(new Exception(string.Format("Couldn't return Shopping Cart for UserId '{0}'", _userId), ex));
             }
         }
 
         /// <summary>
-        /// Add product to  basket
+        /// Add Product to Shopping Cart
         /// </summary>
         /// <param name="id">Id of Product</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("AddProduct/{id}")]
-        public IHttpActionResult AddProduct(int id)
+        public IHttpActionResult AddProduct(ProductDto productDto)
         {
-            if (!IsAuthenticated)
+            if (!ModelState.IsValid)
             {
-                return Unauthorized();
+                return BadRequest(ModelState);
             }
-            var prod = _product_service.GetById(id);
+            if (productDto.Id == null)
+            {
+                return BadRequest();
+            }
+
+            var product = FindProduct(productDto);
+            if (product == null)
+            {
+                return NotFound();
+            }
             try
             {
                 var basket = _basket_service.GetBasket(_userId);
-                basket.Products.Add(new BasketProduct() { BasketId = basket.Id, ProductId = prod.Id });
+                basket.Products.Add(new BasketProduct() { BasketId = basket.Id, ProductId = product.Id });
+
                 _basket_service.Update(basket);
 
                 var updated_basket = _basket_service.GetBasket(_userId);
@@ -111,27 +121,24 @@ namespace Storage.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception(string.Format("Couldn't add Product to Basket"), ex));
+                return InternalServerError(new Exception(string.Format("Couldn't add Product to Cart"), ex));
             }
         }
 
         /// <summary>
-        /// Remove product by product Id
+        /// Remove first product from Shopping Cart where ProductId = id
         /// </summary>
-        /// <param name="id">Id of product</param>
+        /// <param name="id">Product Id</param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("RemoveProduct/{id}")]
+        [Route("Delete/{id:int}")]
         public IHttpActionResult RemoveProduct(int id)
         {
-            if (!IsAuthenticated)
-            {
-                return Unauthorized();
-            }
             try
             {
                 var basket = _basket_service.GetBasket(_userId);
                 basket = _basket_service.RemoveProduct(basket, id);
+
                 var basket_dto = ConvertToDto(basket);
 
                 return Ok(basket_dto);
@@ -142,22 +149,46 @@ namespace Storage.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception(string.Format("Couldn't remove Product from Basket"), ex));
+                return InternalServerError(new Exception(string.Format("Couldn't remove Product with Id '{0}' from Shopping Cart", id), ex));
             }
         }
 
         /// <summary>
-        /// Remove all products from basket
+        /// Remove all products from the Shopping Cart where ProductId = id
+        /// </summary>
+        /// <param name="id">Product Id</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("DeleteAll/{id:int}")]
+        public IHttpActionResult RemoveProducts(int id)
+        {
+            try
+            {
+                var basket = _basket_service.GetBasket(_userId);
+                basket = _basket_service.RemoveProducts(basket, id);
+
+                var basket_dto = ConvertToDto(basket);
+
+                return Ok(basket_dto);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(new Exception(string.Format("Couldn't remove Products with Id '{0}' from Shopping Cart", id), ex));
+            }
+        }
+
+        /// <summary>
+        /// Remove all products from Shopping Cart
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
         [Route("Clear")]
+        [HttpGet]
         public IHttpActionResult Clear()
         {
-            if (!IsAuthenticated)
-            {
-                return Unauthorized();
-            }
             try {
                 var basket = _basket_service.ClearBasket(_userId);
                 var basket_dto = ConvertToDto(basket);
@@ -170,7 +201,7 @@ namespace Storage.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception(string.Format("Couldn't clear Basket"), ex));
+                return InternalServerError(new Exception(string.Format("Couldn't clear Cart"), ex));
             }
         }
         #endregion
@@ -194,6 +225,21 @@ namespace Storage.WebApi.Controllers
                 }
             }
             return basket_dto;
+        }
+
+        private Product FindProduct(ProductDto productDto)
+        {
+            long id = Convert.ToInt64(productDto.Id);
+            try
+            {
+                var product = _product_service.GetById(id);
+
+                return product;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Couldn't find Product with Id '{0}'.", id));
+            }
         }
         #endregion
 

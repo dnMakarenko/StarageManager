@@ -204,8 +204,7 @@
     <Compile Include="Capsule\Modules\ServiceCapsuleModule.cs" />
     <Compile Include="Capsule\WebCapsule.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\BasketController.cs" />
-    <Compile Include="Controllers\ProductsInfoController.cs" />
+    <Compile Include="Controllers\ShoppingCartController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Global.asax.cs">
@@ -233,6 +232,28 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App\app.js" />
+    <Content Include="App\Controllers\Account\loginController.js" />
+    <Content Include="App\Controllers\Account\registerController.js" />
+    <Content Include="App\Controllers\Cart\cartController.js" />
+    <Content Include="App\Controllers\Global\globalController.js" />
+    <Content Include="App\Controllers\Product\productController.js" />
+    <Content Include="App\Controllers\Product\productFormModalController.js" />
+    <Content Include="App\Route\routeConfig.js" />
+    <Content Include="App\Services\Account\authService.js" />
+    <Content Include="App\Services\Account\storageHandler.js" />
+    <Content Include="App\Services\Account\tokenHandler.js" />
+    <Content Include="App\Services\Cart\cartService.js" />
+    <Content Include="App\Services\Interceptors\errorHandler.js" />
+    <Content Include="App\Services\Interceptors\xmlHttpInterceptor.js" />
+    <Content Include="App\Services\Product\productService.js" />
+    <Content Include="App\Templates\Account\Login.html" />
+    <Content Include="App\Templates\Account\Register.html" />
+    <Content Include="App\Templates\Cart\Cart.html" />
+    <Content Include="App\Templates\Product\CreateProduct.html" />
+    <Content Include="App\Templates\Product\Index.html" />
+    <Content Include="App\Templates\Product\ProductFormModal.html" />
+    <Content Include="App\Templates\Shared\_404.html" />
     <Content Include="Assets\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Assets\fonts\LICENSE.txt" />
     <Content Include="Assets\fonts\Material-Design-Icons.svg" />
@@ -1857,16 +1878,9 @@
     <Content Include="Views\Account\ResetPassword.cshtml" />
     <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\ProductsInfo\Index.cshtml" />
-    <Content Include="Views\ProductsInfo\AddProduct.cshtml" />
-    <Content Include="Views\ProductsInfo\ShowProducts.cshtml" />
-    <Content Include="Views\ProductsInfo\EditProduct.cshtml" />
-    <Content Include="Views\ProductsInfo\DeleteProduct.cshtml" />
-    <Content Include="Views\ProductsInfo\DetailsProduct.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Basket\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
